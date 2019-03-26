@@ -7,7 +7,7 @@ class SignInForm extends Component {
     constructor(){
         super();
         this.state = {
-            status: 'Returning', //New or Returning
+            status: 'returning', //new or returning
             email: '',
             firstName: '',
             lastName: '',
@@ -17,7 +17,8 @@ class SignInForm extends Component {
             city: '',
             state: '',
             zip: '',
-            classification: '' // homeowner or professional
+            classification: 'homeowner', // homeowner or professional
+            addToEmailList: 'false' 
         }
             
 
@@ -44,6 +45,7 @@ class SignInForm extends Component {
         let industryArray = [ "Interior Design", "Architecture", "Fabrication", "Retail", "Construction", "Wholesale"]
 
         
+        
 
      
         return(
@@ -53,16 +55,16 @@ class SignInForm extends Component {
                         <Col>
                             <Form.Group controlId="formNewOrRepeat">
                                 <ToggleButtonGroup size="lg" toggle="true" name="status" onClick={(e)=>this.setState({status: e.target.value})}>
-                                    <ToggleButton  value="new">First Time</ToggleButton>
-                                    <ToggleButton  value="returning">Returning</ToggleButton>
+                                    <ToggleButton variant="outline-primary" value="new">First Time</ToggleButton>
+                                    <ToggleButton variant="outline-primary" value="returning">Returning</ToggleButton>
                                 </ToggleButtonGroup>
                             </Form.Group>
                         </Col>
                         <Col>
                             <Form.Group controlId="formNewOrRepeat">
                                 <ToggleButtonGroup size="lg" toggle="true" name="classification" onClick={(e)=>this.setState({classification: e.target.value})}>
-                                    <ToggleButton value="homeowner">Homeowner</ToggleButton>
-                                    <ToggleButton value="professional">Professional</ToggleButton>
+                                    <ToggleButton variant="outline-primary" value="homeowner">Homeowner</ToggleButton>
+                                    <ToggleButton variant="outline-primary" value="professional">Professional</ToggleButton>
                                 </ToggleButtonGroup>
                             </Form.Group>
                         </Col>
@@ -89,7 +91,7 @@ class SignInForm extends Component {
                     
                     {classification === 'professional' && <>
                     <Form.Group controlId="formIndustry" onChange={(e)=>this.setState({industry: e.target.value})}>
-                        <Form.Control as="select">
+                        <Form.Control as="select" className="text-muted">
                             <option>Industry</option>
                             {industryArray.map(industry=>{
                                 return <option>{industry}</option>
@@ -108,14 +110,12 @@ class SignInForm extends Component {
                     
                     <Form.Row>
                         <Form.Group as={Col} controlId="formGridCity" onChange={(e)=>this.setState({city: e.target.value})}>
-                            <Form.Label>City</Form.Label>
-                            <Form.Control />
+                            <Form.Control placeholder="City" className="text-muted"/>
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridState" onChange={(e)=>this.setState({state: e.target.value})}>
-                            <Form.Label>State</Form.Label>
-                            <Form.Control as="select">
-                                <option>Choose...</option>
+                            <Form.Control as="select" className="text-muted">
+                                <option>State...</option>
                                 {stateArray.map(state => {
                                     return <option>{state}</option>
                                 })}
@@ -123,15 +123,15 @@ class SignInForm extends Component {
                         </Form.Group>
 
                         <Form.Group as={Col} controlId="formGridZip" onChange={(e)=>this.setState({zip: e.target.value})}>
-                            <Form.Label>Zip</Form.Label>
-                            <Form.Control />
+                            
+                            <Form.Control placeholder="Zip" className="text-muted"/>
                         </Form.Group>
                     </Form.Row>
                     <Form.Group controlId="formBasicCheckbox">
-                        <Form.Check type="checkbox" label="Check me out" />
+                        <Form.Check type="checkbox" label="Get Email Updates for Future WH Sales" onChange={(e)=>this.setState({zip: e.target.value})}/>
                     </Form.Group>
                     </>}
-                    <Button variant="primary" type="submit">
+                    <Button variant="primary" size="lg" type="submit">
                         Sign In
                     </Button>
                 </Form>
