@@ -22,7 +22,8 @@ class SignInForm extends Component {
             classification: 'homeowner', // homeowner or professional
             addToEmailList: false,
             modalIsOpen: false,
-            validated: false
+            validated: false,
+            referrer: ''
         }
 
         
@@ -70,7 +71,8 @@ class SignInForm extends Component {
 
 
         let stateArray = [ 'AL', 'AK', 'AS', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FM', 'FL', 'GA', 'GU', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MH', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'MP', 'OH', 'OK', 'OR', 'PW', 'PA', 'PR', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VI', 'VA', 'WA', 'WV', 'WI', 'WY' ];
-        let industryArray = [ "Interior Design", "Architecture", "Fabrication", "Retail", "Construction", "Wholesale"]
+        let industryArray = [ "Interior Design", "Architecture", "Fabrication", "Retail", "Construction", "Wholesale"];
+        let referralArray = [ "E-mail", "Print Ad", "AKDO Website", "Instagram", "Facebook", "Industry Connection", "Already an AKDO Customer", "AKDO Outdoor Signage", "Other" ]
 
         return(
             <Container style={containerStyle}>
@@ -126,7 +128,7 @@ class SignInForm extends Component {
                     {classification === 'professional' && <>
                     <Form.Group controlId="formIndustry" onChange={(e)=>this.setState({industry: e.target.value})}>
                         <Form.Control as="select" value={industry} className="text-muted">
-                            <option>Industry</option>
+                            <option disabled selected hidden value="">Industry</option>
                             {industryArray.map(industry=>{
                                 return <option>{industry}</option>
                             })}
@@ -149,20 +151,30 @@ class SignInForm extends Component {
 
                         <Form.Group as={Col} controlId="formGridState" value={state} onChange={(e)=>this.setState({state: e.target.value})}>
                             <Form.Control required as="select" className="text-muted">
-                                <option>State...</option>
+                                <option disabled selected hidden value="">State...</option>
                                 {stateArray.map(state => {
                                     return <option>{state}</option>
                                 })}
                             </Form.Control>
                         </Form.Group>
 
+                        
+
                         <Form.Group as={Col} controlId="formGridZip" onChange={(e)=>this.setState({zip: e.target.value})}>
                             
                             <Form.Control required placeholder="Zip" className="text-muted"/>
                         </Form.Group>
                     </Form.Row>
+                    <Form.Group as={Col} controlId="formGridState" value={state} onChange={(e)=>this.setState({referrer: e.target.value})}>
+                            <Form.Control required as="select" className="text-muted">
+                                <option disabled selected hidden value="">How Did You Hear About Us?</option>
+                                {referralArray.map(referrer => {
+                                    return <option>{referrer}</option>
+                                })}
+                            </Form.Control>
+                        </Form.Group>
                     <Form.Group controlId="formBasicCheckbox">
-                        <Form.Check type="checkbox" label="Get Email Updates from AKDO with New Products and Interesting Projects" onChange={(e)=>this.setState({addToEmailList: e.target.value})}/>
+                        <Form.Check type="checkbox" checked label="Join the AKDO Insider Email List" onChange={(e)=>this.setState({addToEmailList: e.target.value})}/>
                     </Form.Group>
                     </>}
                     <Button variant="primary" size="lg" type="submit">
