@@ -15,7 +15,6 @@
     "express": "^4.16.4",
     "httpclient": "^0.1.0",
     "jsforce": "^1.9.1",
-    "node-salesforce": "^0.8.0",
     "nodemon": "^1.18.10",
     "path": "^0.12.7",
     "session": "^0.1.0"
