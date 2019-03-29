@@ -6,6 +6,7 @@ const CustomerSummary = (props) => {
 
     const { modalIsOpen, 
         handleClose,
+        handleSubmit,
         status, 
         email,
         firstName,
@@ -60,10 +61,10 @@ const CustomerSummary = (props) => {
                 
             </Modal.Body>
             <Modal.Footer>
-            <Button variant="success">
+            <Button variant="success" onClick={() => window.print()}>
               Print Info
             </Button>
-            <Button variant="primary" onClick={handleClose}>
+            <Button variant="primary" onClick={handleSubmit}>
               Finish Sign-In!
             </Button>
             </Modal.Footer>

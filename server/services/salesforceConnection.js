@@ -17,5 +17,3 @@ conn.login(keys.sfUsername, keys.sfPassword+keys.sfToken, function(err, userInfo
   console.log("Org ID: " + userInfo.organizationId);
   // ...
 });
-
-module.exports = conn

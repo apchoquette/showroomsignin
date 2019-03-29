@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Col, Form, Button, ButtonGroup, Row, ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import CustomerSummary from './CustomerSummary';
+import axios from 'axios';
 
 class SignInForm extends Component {
 
@@ -47,6 +48,22 @@ class SignInForm extends Component {
        
     }
 
+    completeHandler = () => {
+        if(this.state.status === 'returning'){
+
+        }else{
+            axios.post('/api/showroom-visitor', {
+                ...this.state
+              })
+              .then(function (response) {
+                console.log(response);
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+        }
+    }
+
     closeModal = () => {
         this.setState({modalIsOpen: false})
        
@@ -58,7 +75,7 @@ class SignInForm extends Component {
     render(){
 
         const { status, classification, modalIsOpen,validated,state,industry } = this.state;
-        const { submitHandler, closeModal} = this
+        const { submitHandler, closeModal, completeHandler } = this
 
         let containerStyle = {
             width: '40%',
@@ -183,6 +200,7 @@ class SignInForm extends Component {
                     <CustomerSummary 
                     modalIsOpen={modalIsOpen}
                     handleClose={closeModal}
+                    handleSubmit={completeHandler}
                     {...this.state}
                 />
                 </Form>
