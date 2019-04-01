@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Form, Button, ButtonGroup, Row, ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
+import { Col, Form, Button, ButtonGroup, Row, ToggleButtonGroup, ToggleButton, Spinner } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import CustomerSummary from './CustomerSummary';
 import axios from 'axios';
@@ -9,7 +9,7 @@ class SignInForm extends Component {
     constructor(){
         super();
         this.state = {
-            status: 'returning', //new or returning
+            status: 'new', //new or returning
             email: '',
             firstName: '',
             lastName: '',
@@ -24,7 +24,10 @@ class SignInForm extends Component {
             addToEmailList: false,
             modalIsOpen: false,
             validated: false,
-            referrer: ''
+            referrer: '',
+            emailSubmitted: false,
+            loading: false
+            
         }
 
         
@@ -64,9 +67,46 @@ class SignInForm extends Component {
         }
     }
 
+    confirmDataHandler = async () => {
+        this.setState({loading: true,
+        emailSubmitted: true})
+        
+        axios.post('/api/showroom-visitor',{...this.state}).then(({data})=> {
+            let { Name, Last_Name__c, Industry__c, Company_Name__c, Street__c, City__c, State__c, zip__c, Phone_Number__c, Classification__c, AddToEmailList__c, Referrer__c } = data;
+            this.setState({
+                firstName: Name,
+                lastName: Last_Name__c,
+                industry: Industry__c ,
+                companyName: Company_Name__c,
+                street: Street__c,
+                city: City__c,
+                state: State__c,
+                zip: zip__c,
+                phone: Phone_Number__c,
+                classification: Classification__c,
+                addToEmailList: AddToEmailList__c,
+                referrer: Referrer__c
+            })
+            this.setState({loading: false})
+        }).catch(err =>{
+            console.log(err)
+        })
+        
+    }
+
     closeModal = () => {
         this.setState({modalIsOpen: false})
        
+    }
+
+    disabledHandler = () => {
+        let { status,emailSubmitted } = this.state
+        if(status === 'new'){
+            return false
+        }else if(emailSubmitted === true){
+            return false
+        }
+        return true
     }
 
     
@@ -74,9 +114,12 @@ class SignInForm extends Component {
 
     render(){
 
-        const { status, classification, modalIsOpen,validated,state,industry } = this.state;
-        const { submitHandler, closeModal, completeHandler } = this
+        console.log(this.state)
 
+        const { firstName, lastName, companyName, email, street, city, zip, addToEmailList, status, classification, modalIsOpen,validated,state,industry, emailSubmitted, loading, phone } = this.state;
+        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler } = this
+
+    
         let containerStyle = {
             width: '40%',
             height: '50%',
@@ -100,7 +143,12 @@ class SignInForm extends Component {
                     <Form.Row>
                         <Col>
                             <Form.Group controlId="formNewOrRepeat">
-                                <ToggleButtonGroup size="lg" toggle="true" name="status" onClick={(e)=>this.setState({status: e.target.value})}>
+                                <ToggleButtonGroup 
+                                size="lg" 
+                                toggle="true" 
+                                name="status" 
+                                value={status} 
+                                onClick={(e)=>this.setState({status: e.target.value})}>
                                     <ToggleButton variant="outline-primary" value="new">First Time</ToggleButton>
                                     <ToggleButton variant="outline-primary" value="returning">Returning</ToggleButton>
                                 </ToggleButtonGroup>
@@ -108,7 +156,12 @@ class SignInForm extends Component {
                         </Col>
                         <Col>
                             <Form.Group controlId="formNewOrRepeat">
-                                <ToggleButtonGroup size="lg" toggle="true" name="classification" onClick={(e)=>this.setState({classification: e.target.value})}>
+                                <ToggleButtonGroup 
+                                size="lg" 
+                                toggle="true" 
+                                name="classification" 
+                                value={classification} 
+                                onClick={(e)=>this.setState({classification: e.target.value})}>
                                     <ToggleButton variant="outline-primary" value="homeowner">Homeowner</ToggleButton>
                                     <ToggleButton variant="outline-primary" value="professional">Professional</ToggleButton>
                                 </ToggleButtonGroup>
@@ -116,8 +169,13 @@ class SignInForm extends Component {
                         </Col>
                     </Form.Row>
                     
-                    <Form.Group controlId="formBasicEmail" onChange={(e)=>this.setState({email: e.target.value})}>
-                        <Form.Control required type="email" placeholder="Email Address" />
+                    <Form.Group controlId="formBasicEmail" >
+                        <Form.Control 
+                        required 
+                        type="email" 
+                        onChange={(e)=>this.setState({email: e.target.value})} 
+                        value={email} 
+                        placeholder="Email Address" />
                         <Form.Control.Feedback type="invalid">
                             Please provide a valid email address.
                         </Form.Control.Feedback>
@@ -125,26 +183,72 @@ class SignInForm extends Component {
                         We'll never share your email with anyone.
                         </Form.Text>
                     </Form.Group>
+
+                    {((status === 'returning' && emailSubmitted === false) || loading === true ) 
+                    && <Button 
+                    onClick={()=>confirmDataHandler()} 
+                    variant="primary" 
+                    size="lg">
+                        {loading === true ?     
+                        <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                        /> :
+                        <>
+                        <span>Confirm Data</span>
+                        <span className="sr-only">Loading...</span>
+                        </>}
+                    </Button>}
                     
-                    {status === 'new' && <>
-                    <Form.Group controlId="formBasicPhoneNumber" onChange={(e)=>this.setState({phone: e.target.value})}>
-                        <Form.Control type="text" placeholder="Phone Number (Optional)" />
+                    {((status === 'new' || emailSubmitted === true) && loading === false) &&
+                    
+                    <>
+
+                    <Form.Group controlId="formBasicPhoneNumber" >
+                        <Form.Control 
+                        disabled={disabledHandler()} 
+                        onChange={(e)=>this.setState({phone: e.target.value})} 
+                        value={phone} 
+                        type="text" 
+                        placeholder="Phone Number (Optional)" />
                     </Form.Group>
                     <Form.Group controlId="formName">
                         <Form.Row>
                             <Col>
-                                <Form.Control required autoComplete="given-name" type="text" placeholder="First Name" onChange={(e)=>this.setState({firstName: e.target.value})}/>
+                                <Form.Control 
+                                disabled={disabledHandler()} 
+                                required 
+                                autoComplete="given-name" 
+                                type="text" 
+                                placeholder="First Name" 
+                                value={firstName} 
+                                onChange={(e)=>this.setState({firstName: e.target.value})}/>
                             </Col>
                             <Col>
-                                <Form.Control required autoComplete="family-name" type="text" placeholder="Last Name" onChange={(e)=>this.setState({lastName: e.target.value})}/>
+                                <Form.Control 
+                                disabled={disabledHandler()} 
+                                required 
+                                autoComplete="family-name" 
+                                type="text" 
+                                placeholder="Last Name" 
+                                value={lastName} 
+                                onChange={(e)=>this.setState({lastName: e.target.value})}/>
                             </Col>                       
                         </Form.Row>
                     </Form.Group>
                     
                     
                     {classification === 'professional' && <>
-                    <Form.Group controlId="formIndustry" onChange={(e)=>this.setState({industry: e.target.value})}>
-                        <Form.Control as="select" value={industry} className="text-muted">
+                    <Form.Group controlId="formIndustry" >
+                        <Form.Control 
+                        disabled={disabledHandler()} 
+                        onChange={(e)=>this.setState({industry: e.target.value})} 
+                        as="select" 
+                        value={industry} 
+                        className="text-muted">
                             <option disabled selected hidden value="">Industry</option>
                             {industryArray.map(industry=>{
                                 return <option>{industry}</option>
@@ -152,22 +256,47 @@ class SignInForm extends Component {
                         </Form.Control>
 
                     </Form.Group>
-                    <Form.Group controlId="formCompanyName" onChange={(e)=>this.setState({companyName: e.target.value})}>
-                        <Form.Control required type="text" placeholder="Company Name" />
+                    <Form.Group controlId="formCompanyName" >
+                        <Form.Control 
+                        disabled={disabledHandler()} 
+                        onChange={(e)=>this.setState({companyName: e.target.value})}
+                        value={companyName}
+                        required 
+                        type="text" 
+                        placeholder="Company Name" />
                     </Form.Group>
                     </>
                     }
-                    <Form.Group controlId="formAddress" onChange={(e)=>this.setState({street: e.target.value})}>
-                        <Form.Control required type="text" placeholder="Street" />
+                    <Form.Group controlId="formAddress" >
+                        <Form.Control 
+                        disabled={disabledHandler()} 
+                        required 
+                        onChange={(e)=>this.setState({street: e.target.value})} 
+                        value ={street} 
+                        type="text" 
+                        placeholder="Street" />
                     </Form.Group>
                     
                     <Form.Row>
                         <Form.Group  as={Col} controlId="formGridCity" onChange={(e)=>this.setState({city: e.target.value})}>
-                            <Form.Control required placeholder="City" className="text-muted"/>
+                            <Form.Control 
+                            disabled={disabledHandler()} 
+                            required
+                            onChange={(e)=>this.setState({city: e.target.value})}
+                            value={city} 
+                            placeholder="City" className="text-muted"/>
                         </Form.Group>
 
-                        <Form.Group as={Col} controlId="formGridState" value={state} onChange={(e)=>this.setState({state: e.target.value})}>
-                            <Form.Control required as="select" className="text-muted">
+                        <Form.Group 
+                        as={Col} 
+                        controlId="formGridState" >
+                            <Form.Control 
+                            disabled={disabledHandler()} 
+                            required 
+                            value={state} 
+                            onChange={(e)=>this.setState({state: e.target.value})}
+                            as="select" 
+                            className="text-muted">
                                 <option disabled selected hidden value="">State...</option>
                                 {stateArray.map(state => {
                                     return <option>{state}</option>
@@ -175,15 +304,27 @@ class SignInForm extends Component {
                             </Form.Control>
                         </Form.Group>
 
-                        
+                    
 
-                        <Form.Group as={Col} controlId="formGridZip" onChange={(e)=>this.setState({zip: e.target.value})}>
+                        <Form.Group as={Col} controlId="formGridZip">
                             
-                            <Form.Control required placeholder="Zip" className="text-muted"/>
+                            <Form.Control 
+                            disabled={disabledHandler()} 
+                            required 
+                            onChange={(e)=>this.setState({zip: e.target.value})}
+                            value={zip}
+                            placeholder="Zip" 
+                            className="text-muted"/>
                         </Form.Group>
                     </Form.Row>
-                    <Form.Group as={Col} controlId="formGridState" value={state} onChange={(e)=>this.setState({referrer: e.target.value})}>
-                            <Form.Control required as="select" className="text-muted">
+                    <Form.Group as={Col} controlId="formGridState" >
+                            <Form.Control 
+                            disabled={disabledHandler()} 
+                            required 
+                            value={state} 
+                            onChange={(e)=>this.setState({referrer: e.target.value})}
+                            as="select" 
+                            className="text-muted">
                                 <option disabled selected hidden value="">How Did You Hear About Us?</option>
                                 {referralArray.map(referrer => {
                                     return <option>{referrer}</option>
@@ -191,12 +332,19 @@ class SignInForm extends Component {
                             </Form.Control>
                         </Form.Group>
                     <Form.Group controlId="formBasicCheckbox">
-                        <Form.Check type="checkbox" checked label="Join the AKDO Insider Email List" onChange={(e)=>this.setState({addToEmailList: e.target.value})}/>
+                        <Form.Check 
+                        disabled={disabledHandler()} 
+                        type="checkbox" 
+                        checked 
+                        label="Join the AKDO Insider Email List" 
+                        onChange={(e)=>this.setState({addToEmailList: e.target.value})}
+                        value={addToEmailList}/>
                     </Form.Group>
                     </>}
-                    <Button variant="primary" size="lg" type="submit">
+                    
+                    {((status === 'new' || emailSubmitted === true) && loading === false)  && <Button variant="primary" size="lg" type="submit">
                         Sign In
-                    </Button>
+                    </Button>}
                     <CustomerSummary 
                     modalIsOpen={modalIsOpen}
                     handleClose={closeModal}

@@ -38,7 +38,7 @@ module.exports = (app) => {
     app.post('/api/showroom-visitor', (req,res)=> {
 
         let { firstName,email,lastName,industry,companyName,street,city,state,zip,phone,classification,addToEmailList,referrer } = req.body
-
+        //create an object that maps form values to 'Showroom Visitor' custom object in Salesforce.
         let newShowroomVisitor = {
             Name: firstName,
             email__c: email,
@@ -57,26 +57,57 @@ module.exports = (app) => {
 
         }
 
-        let httpCode = 404;
 
+        //instantiate Salesforce connection 
         var conn = new jsforce.Connection({
-            
+            // you can change loginUrl to connect to sandbox or prerelease env.
             loginUrl : 'https://test.salesforce.com'
           });
-          conn.login(keys.sfUsername, keys.sfPassword+keys.sfToken, function(err, userInfo) {
-            if (err) { return console.error(err); }
-            conn.sobject("Showroom_Visitor__c").create(newShowroomVisitor, function(err, ret) {
-                if (err || !ret.success) { 
-                    httpCode = 400
-                    return console.error(err, ret); }
-                console.log("Created record id : " + ret.id);
-                httpCode = 200;
-                // ...
-              });
-    })
 
-    res.status(httpCode)
-    httpCode === 200 ? res.send('All Good!') : res.send('An Error Occurred')
+
+        //Check for existing records; if existing record does not exist, create it. 
+        let checkExisting = (newVisitorObject,callback) => {
+
+            const records = [];
+            
+            //initiate connection, run async query and await records. 
+            conn.login(keys.sfUsername, keys.sfPassword+keys.sfToken, async function(err, userInfo) {
+                if (err) { return console.error(err); }          
+                var query = await conn.query(`SELECT Name, email__c, Last_Name__c, Industry__c, Company_Name__c, 
+                Street__c,City__c,State__c,zip__c,Phone_Number__c, Classification__c, NumberOfVisits__c, AddToEmailList__c,
+                REferrer__c FROM Showroom_Visitor__c WHERE email__c LIKE '${newVisitorObject.email__c}'`)
+                    .on("record", function(record) {
+                    records.push(record);
+                    })
+                if(records.length === 0){
+                    callback(newVisitorObject);
+                }else{
+                    console.log(records[0])
+                    res.send(records[0])
+                    
+                }
+            })
+
+        }
+        //call the function.
+        checkExisting(newShowroomVisitor,(newShowroomVisitor) => {
+            
+            conn.sobject("Showroom_Visitor__c").create(newShowroomVisitor, function(err, ret) {
+                if( err || !ret.success ){
+                    return console.error(err, ret);
+                }
+                console.log("Created record id : " + ret.id);
+                
+                
+              });
+              
+
+
+        });
+
+        
+
+    
 })
           
             
