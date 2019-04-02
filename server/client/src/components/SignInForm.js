@@ -26,7 +26,8 @@ class SignInForm extends Component {
             validated: false,
             referrer: '',
             emailSubmitted: false,
-            loading: false
+            loading: false,
+            editing: false
             
         }
 
@@ -45,7 +46,7 @@ class SignInForm extends Component {
         }else{
             e.preventDefault();
             e.stopPropagation();
-            this.setState({ modalIsOpen: true });
+            this.setState({ modalIsOpen: true, editing: false });
         }
         
        
@@ -83,6 +84,7 @@ class SignInForm extends Component {
                 state: State__c,
                 zip: zip__c,
                 phone: Phone_Number__c,
+                status: 'returning',
                 classification: Classification__c,
                 addToEmailList: AddToEmailList__c,
                 referrer: Referrer__c
@@ -100,13 +102,16 @@ class SignInForm extends Component {
     }
 
     disabledHandler = () => {
-        let { status,emailSubmitted } = this.state
-        if(status === 'new'){
-            return false
-        }else if(emailSubmitted === true){
+        let { status,editing } = this.state
+        if(status === 'new' || editing === true){
             return false
         }
+
         return true
+    }
+
+    editHandler = () => {
+        this.setState({editing: true})
     }
 
     
@@ -114,10 +119,10 @@ class SignInForm extends Component {
 
     render(){
 
-        console.log(this.state)
+        
 
-        const { firstName, lastName, companyName, email, street, city, zip, addToEmailList, status, classification, modalIsOpen,validated,state,industry, emailSubmitted, loading, phone } = this.state;
-        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler } = this
+        const { firstName, referrer, lastName, companyName, email, street, city, zip, addToEmailList, status, classification, modalIsOpen,validated,state,industry, emailSubmitted, loading, phone, editing } = this.state;
+        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler, editHandler } = this
 
     
         let containerStyle = {
@@ -160,7 +165,7 @@ class SignInForm extends Component {
                                 size="lg" 
                                 toggle="true" 
                                 name="classification" 
-                                value={classification} 
+                                value={classification.toLowerCase()} 
                                 onClick={(e)=>this.setState({classification: e.target.value})}>
                                     <ToggleButton variant="outline-primary" value="homeowner">Homeowner</ToggleButton>
                                     <ToggleButton variant="outline-primary" value="professional">Professional</ToggleButton>
@@ -193,12 +198,12 @@ class SignInForm extends Component {
                         <Spinner
                             as="span"
                             animation="border"
-                            size="sm"
+                            size="lg"
                             role="status"
                             aria-hidden="true"
                         /> :
                         <>
-                        <span>Confirm Data</span>
+                        <span>Verify Info</span>
                         <span className="sr-only">Loading...</span>
                         </>}
                     </Button>}
@@ -321,7 +326,7 @@ class SignInForm extends Component {
                             <Form.Control 
                             disabled={disabledHandler()} 
                             required 
-                            value={state} 
+                            value={referrer} 
                             onChange={(e)=>this.setState({referrer: e.target.value})}
                             as="select" 
                             className="text-muted">
@@ -335,13 +340,15 @@ class SignInForm extends Component {
                         <Form.Check 
                         disabled={disabledHandler()} 
                         type="checkbox" 
-                        checked 
+                        checked={addToEmailList}
                         label="Join the AKDO Insider Email List" 
                         onChange={(e)=>this.setState({addToEmailList: e.target.value})}
                         value={addToEmailList}/>
                     </Form.Group>
                     </>}
-                    
+                    {(emailSubmitted === true && loading === false && editing === false)  && <Button variant="secondary" size="lg" onClick={()=>editHandler()}>
+                        Edit
+                    </Button>}
                     {((status === 'new' || emailSubmitted === true) && loading === false)  && <Button variant="primary" size="lg" type="submit">
                         Sign In
                     </Button>}

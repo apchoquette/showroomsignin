@@ -15,8 +15,6 @@ module.exports = (app) => {
                 records.push(record);
             })
             .on("end", function() {
-                console.log("total in database : " + query.totalSize);
-                console.log("total fetched : " + query.totalFetched);
                 if(records.length === 1){
                     conn.update({
                         Id: records[0].Id,
@@ -57,13 +55,11 @@ module.exports = (app) => {
 
         }
 
-
         //instantiate Salesforce connection 
         var conn = new jsforce.Connection({
-            // you can change loginUrl to connect to sandbox or prerelease env.
-            loginUrl : 'https://test.salesforce.com'
+            
+            loginUrl : keys.loginURL
           });
-
 
         //Check for existing records; if existing record does not exist, create it. 
         let checkExisting = (newVisitorObject,callback) => {
@@ -75,7 +71,7 @@ module.exports = (app) => {
                 if (err) { return console.error(err); }          
                 var query = await conn.query(`SELECT Name, email__c, Last_Name__c, Industry__c, Company_Name__c, 
                 Street__c,City__c,State__c,zip__c,Phone_Number__c, Classification__c, NumberOfVisits__c, AddToEmailList__c,
-                REferrer__c FROM Showroom_Visitor__c WHERE email__c LIKE '${newVisitorObject.email__c}'`)
+                Referrer__c FROM Showroom_Visitor__c WHERE email__c LIKE '${newVisitorObject.email__c}'`)
                     .on("record", function(record) {
                     records.push(record);
                     })
@@ -87,28 +83,16 @@ module.exports = (app) => {
                     
                 }
             })
-
         }
-        //call the function.
+        
         checkExisting(newShowroomVisitor,(newShowroomVisitor) => {
             
             conn.sobject("Showroom_Visitor__c").create(newShowroomVisitor, function(err, ret) {
                 if( err || !ret.success ){
                     return console.error(err, ret);
                 }
-                console.log("Created record id : " + ret.id);
-                
-                
+                console.log("Created record id : " + ret.id);        
               });
-              
-
-
         });
-
-        
-
-    
-})
-          
-            
+})            
 }
