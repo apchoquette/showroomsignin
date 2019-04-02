@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Container, Row, Col, Button, Table } from 'react-bootstrap';
+import { Modal, Button} from 'react-bootstrap';
 
 
 const CustomerSummary = (props) => {
@@ -7,39 +7,16 @@ const CustomerSummary = (props) => {
     const { modalIsOpen, 
         handleClose,
         handleSubmit,
-        status, 
-        email,
         firstName,
         lastName,
-        industry,
         companyName,
         street,
         city,
         state,
         zip,
-        classification,
         phone
      } = props
-
-    console.log(props)
-   
-
-    const containerStyle = {
-        width: '40%',
-        height: '50%',
-        border: '1px solid gray',
-        borderRadius: '5px',
-        boxShadow: '0px 2px 4px lightgray',
-        padding: '25px'
-    }
-    const modalStyles = {
-        content : {
-          width: '100%'
-        }
-      }
-
-      
-
+     
     return (
         <Modal
             show={modalIsOpen}

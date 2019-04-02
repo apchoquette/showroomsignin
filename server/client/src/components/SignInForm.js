@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Form, Button, ButtonGroup, Row, ToggleButtonGroup, ToggleButton, Spinner } from 'react-bootstrap';
+import { Col, Form, Button, ToggleButtonGroup, ToggleButton, Spinner } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import CustomerSummary from './CustomerSummary';
 import axios from 'axios';
@@ -27,7 +27,8 @@ class SignInForm extends Component {
             referrer: '',
             emailSubmitted: false,
             loading: false,
-            editing: false
+            editing: false,
+            sfId: ''
             
         }
 
@@ -54,7 +55,7 @@ class SignInForm extends Component {
 
     completeHandler = () => {
         if(this.state.status === 'returning'){
-
+            axios.put()
         }else{
             axios.post('/api/showroom-visitor', {
                 ...this.state
@@ -68,12 +69,23 @@ class SignInForm extends Component {
         }
     }
 
-    confirmDataHandler = async () => {
+    confirmDataHandler = () => {
         this.setState({loading: true,
-        emailSubmitted: true})
+        emailSubmitted: true});
         
         axios.post('/api/showroom-visitor',{...this.state}).then(({data})=> {
-            let { Name, Last_Name__c, Industry__c, Company_Name__c, Street__c, City__c, State__c, zip__c, Phone_Number__c, Classification__c, AddToEmailList__c, Referrer__c } = data;
+            let { Name, 
+                Last_Name__c, 
+                Industry__c, 
+                Company_Name__c, 
+                Street__c, 
+                City__c, 
+                State__c, 
+                zip__c, 
+                Phone_Number__c, 
+                Classification__c, 
+                AddToEmailList__c, 
+                Referrer__c,Id } = data;
             this.setState({
                 firstName: Name,
                 lastName: Last_Name__c,
@@ -87,7 +99,8 @@ class SignInForm extends Component {
                 status: 'returning',
                 classification: Classification__c,
                 addToEmailList: AddToEmailList__c,
-                referrer: Referrer__c
+                referrer: Referrer__c,
+                sfId: Id
             })
             this.setState({loading: false})
         }).catch(err =>{
@@ -153,7 +166,7 @@ class SignInForm extends Component {
                                 toggle="true" 
                                 name="status" 
                                 value={status} 
-                                onClick={(e)=>this.setState({status: e.target.value})}>
+                                onChange={(e)=>this.setState({status: 'new' ? 'returning' : 'new'})}>
                                     <ToggleButton variant="outline-primary" value="new">First Time</ToggleButton>
                                     <ToggleButton variant="outline-primary" value="returning">Returning</ToggleButton>
                                 </ToggleButtonGroup>
@@ -166,7 +179,7 @@ class SignInForm extends Component {
                                 toggle="true" 
                                 name="classification" 
                                 value={classification.toLowerCase()} 
-                                onClick={(e)=>this.setState({classification: e.target.value})}>
+                                onChange={(e)=>this.setState({classification: 'homeowner' ? 'professional' : 'homeowner'})}>
                                     <ToggleButton variant="outline-primary" value="homeowner">Homeowner</ToggleButton>
                                     <ToggleButton variant="outline-primary" value="professional">Professional</ToggleButton>
                                 </ToggleButtonGroup>
@@ -304,7 +317,7 @@ class SignInForm extends Component {
                             className="text-muted">
                                 <option disabled selected hidden value="">State...</option>
                                 {stateArray.map(state => {
-                                    return <option>{state}</option>
+                                    return <option key={state}>{state}</option>
                                 })}
                             </Form.Control>
                         </Form.Group>
@@ -332,7 +345,7 @@ class SignInForm extends Component {
                             className="text-muted">
                                 <option disabled selected hidden value="">How Did You Hear About Us?</option>
                                 {referralArray.map(referrer => {
-                                    return <option>{referrer}</option>
+                                    return <option key={referrer}>{referrer}</option>
                                 })}
                             </Form.Control>
                         </Form.Group>
@@ -342,8 +355,8 @@ class SignInForm extends Component {
                         type="checkbox" 
                         checked={addToEmailList}
                         label="Join the AKDO Insider Email List" 
-                        onChange={(e)=>this.setState({addToEmailList: e.target.value})}
-                        value={addToEmailList}/>
+                        onChange={(e)=>this.setState({addToEmailList: addToEmailList ? false : true})}
+                        />
                     </Form.Group>
                     </>}
                     {(emailSubmitted === true && loading === false && editing === false)  && <Button variant="secondary" size="lg" onClick={()=>editHandler()}>
