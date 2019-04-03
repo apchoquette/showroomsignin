@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Col, Form, Button, ToggleButtonGroup, ToggleButton, Spinner } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import CustomerSummary from './CustomerSummary';
+import Success from './Success';
+import Failure from './Failure';
 import axios from 'axios';
 
 class SignInForm extends Component {
@@ -25,16 +27,18 @@ class SignInForm extends Component {
             modalIsOpen: false,
             validated: false,
             referrer: '',
+            referrerDetail: '',
             emailSubmitted: false,
             loading: false,
             editing: false,
-            sfId: ''
+            sfId: '',
+            material: '',
+            number: 1,
+            submitted: false,
+            error: false,
+            errorText: ''
             
-        }
-
-        
-    
-            
+        }      
 
     }
 
@@ -49,22 +53,74 @@ class SignInForm extends Component {
             e.stopPropagation();
             this.setState({ modalIsOpen: true, editing: false });
         }
-        
-       
     }
 
     completeHandler = () => {
-        if(this.state.status === 'returning'){
-            axios.put()
+
+        let { status, sfId, editing, number } = this.state
+        if(status === 'returning'){
+            axios.put(`/api/showroom-visitor/${sfId}`, {
+                ...this.state,
+                number: number++
+            }).then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        submitted: true,
+                        modalIsOpen: false
+                    })
+                    setTimeout(()=>
+                        this.setState({
+                            status: 'new', //new or returning
+                            email: '',
+                            firstName: '',
+                            lastName: '',
+                            industry: '',
+                            companyName: '',
+                            street: '',
+                            city: '',
+                            state: '',
+                            zip: '',
+                            phone: '',
+                            classification: 'homeowner', // homeowner or professional
+                            addToEmailList: false,
+                            modalIsOpen: false,
+                            validated: false,
+                            referrer: '',
+                            referrerDetail: '',
+                            emailSubmitted: false,
+                            loading: false,
+                            editing: false,
+                            sfId: '',
+                            material: '',
+                            number: 1,
+                            submitted: false,
+                            error: false,
+                            errorText: ''
+                        }),3000)
+                }
+            }).catch((error) => {
+                this.setState({
+                    error: true,
+                    errorText: 'Connection Failed. Please check internet connection and submit again.'
+                })
+            })
         }else{
             axios.post('/api/showroom-visitor', {
                 ...this.state
               })
-              .then(function (response) {
-                console.log(response);
-              })
-              .catch(function (error) {
-                console.log(error);
+              .then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        submitted: true,
+                        modalIsOpen: false
+                    
+                    })
+              }})
+              .catch((error) => {
+                    this.setState({
+                        error: true,
+                        errorText: 'Connection Failed. Please check internet connection and submit again.'
+                    })
               });
         }
     }
@@ -74,8 +130,7 @@ class SignInForm extends Component {
         emailSubmitted: true});
         
         axios.post('/api/showroom-visitor',{...this.state}).then(({data})=> {
-            let { Name, 
-                Last_Name__c, 
+            let { Name,  
                 Industry__c, 
                 Company_Name__c, 
                 Street__c, 
@@ -85,10 +140,11 @@ class SignInForm extends Component {
                 Phone_Number__c, 
                 Classification__c, 
                 AddToEmailList__c, 
-                Referrer__c,Id } = data;
+                Referrer__c,Referrer_Name__c, Id,NumberOfVisits__c } = data;
+
             this.setState({
-                firstName: Name,
-                lastName: Last_Name__c,
+                firstName: Name.split(' ')[0],
+                lastName: Name.split(' ')[1],
                 industry: Industry__c ,
                 companyName: Company_Name__c,
                 street: Street__c,
@@ -100,11 +156,16 @@ class SignInForm extends Component {
                 classification: Classification__c,
                 addToEmailList: AddToEmailList__c,
                 referrer: Referrer__c,
-                sfId: Id
+                referrerDetail: Referrer_Name__c,
+                sfId: Id,
+                number: NumberOfVisits__c
             })
             this.setState({loading: false})
-        }).catch(err =>{
-            console.log(err)
+        }).catch(err => {
+            this.setState({
+                error: true,
+                errorText: 'Connection Failed. Please check internet connection and submit again.'
+            })
         })
         
     }
@@ -127,6 +188,11 @@ class SignInForm extends Component {
         this.setState({editing: true})
     }
 
+    resetForm = () => {
+
+        
+    }
+
     
 
 
@@ -134,8 +200,8 @@ class SignInForm extends Component {
 
         
 
-        const { firstName, referrer, lastName, companyName, email, street, city, zip, addToEmailList, status, classification, modalIsOpen,validated,state,industry, emailSubmitted, loading, phone, editing } = this.state;
-        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler, editHandler } = this
+        const { firstName, referrer, referrerDetail, material, lastName, companyName, email, street, city, zip, addToEmailList, status, classification, modalIsOpen,validated,state,industry, emailSubmitted, loading, phone, editing, submitted, errorText, error } = this.state;
+        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler, editHandler, resetForm } = this
 
     
         let containerStyle = {
@@ -150,10 +216,13 @@ class SignInForm extends Component {
 
         let stateArray = [ 'AL', 'AK', 'AS', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FM', 'FL', 'GA', 'GU', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MH', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'MP', 'OH', 'OK', 'OR', 'PW', 'PA', 'PR', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VI', 'VA', 'WA', 'WV', 'WI', 'WY' ];
         let industryArray = [ "Interior Design", "Architecture", "Fabrication", "Retail", "Construction", "Wholesale"];
-        let referralArray = [ "E-mail", "Print Ad", "AKDO Website", "Instagram", "Facebook", "Industry Connection", "Already an AKDO Customer", "AKDO Outdoor Signage", "Other" ]
+        let referralArray = [ "E-mail", "Print Ad", "AKDO Website", "Instagram", "Facebook", "Recommended by My Fabricator/Tile Showroom", "Already an AKDO Customer", "AKDO Outdoor Signage", "Other" ]
+        let materialArray = [ "Stone Tile", "Stone Mosaic", "Glass Tile", "Glass Mosaic", "Porcelain", "Ceramic", "Slab: Quartz", "Slab: Granite", "Slab: Porcelain", "Slab: Quartzite", "Slab: Limestone", "Slab: Marble"]
 
         return(
             <Container style={containerStyle}>
+                <Success show={submitted} />
+                <Failure show={error} errorText={errorText} />
                 <Form noValidate
                     validated={validated}
                     onSubmit={(e)=>submitHandler(e)}
@@ -166,7 +235,7 @@ class SignInForm extends Component {
                                 toggle="true" 
                                 name="status" 
                                 value={status} 
-                                onChange={(e)=>this.setState({status: 'new' ? 'returning' : 'new'})}>
+                                onClick={(e)=>this.setState({status: e.target.value})}>
                                     <ToggleButton variant="outline-primary" value="new">First Time</ToggleButton>
                                     <ToggleButton variant="outline-primary" value="returning">Returning</ToggleButton>
                                 </ToggleButtonGroup>
@@ -178,8 +247,8 @@ class SignInForm extends Component {
                                 size="lg" 
                                 toggle="true" 
                                 name="classification" 
-                                value={classification.toLowerCase()} 
-                                onChange={(e)=>this.setState({classification: 'homeowner' ? 'professional' : 'homeowner'})}>
+                                value={classification && classification.toLowerCase()} 
+                                onClick={(e)=>this.setState({classification: e.target.value})}>
                                     <ToggleButton variant="outline-primary" value="homeowner">Homeowner</ToggleButton>
                                     <ToggleButton variant="outline-primary" value="professional">Professional</ToggleButton>
                                 </ToggleButtonGroup>
@@ -321,9 +390,6 @@ class SignInForm extends Component {
                                 })}
                             </Form.Control>
                         </Form.Group>
-
-                    
-
                         <Form.Group as={Col} controlId="formGridZip">
                             
                             <Form.Control 
@@ -335,8 +401,8 @@ class SignInForm extends Component {
                             className="text-muted"/>
                         </Form.Group>
                     </Form.Row>
-                    <Form.Group as={Col} controlId="formGridState" >
-                            <Form.Control 
+                    <Form.Group as={Col} controlId="formGridReferrer" >
+                        <Form.Control 
                             disabled={disabledHandler()} 
                             required 
                             value={referrer} 
@@ -347,8 +413,28 @@ class SignInForm extends Component {
                                 {referralArray.map(referrer => {
                                     return <option key={referrer}>{referrer}</option>
                                 })}
-                            </Form.Control>
-                        </Form.Group>
+                        </Form.Control>
+                        {referrer === 'Recommended by My Fabricator/Tile Showroom' && <Form.Control 
+                                disabled={disabledHandler()}  
+                                onChange={(e)=>this.setState({referrerDetail: e.target.value})} 
+                                value ={referrerDetail} 
+                                type="text" 
+                                placeholder="Name of Fabricator/Tile Showroom" />}
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGridMaterial" >
+                        <Form.Control 
+                            
+                            value={material} 
+                            onChange={(e)=>this.setState({material: e.target.value})}
+                            as="select" 
+                            className="text-muted">
+                                <option disabled selected hidden value="">What are you looking for today?</option>
+                                {materialArray.map(material => {
+                                    return <option key={material}>{material}</option>
+                                })}
+                        </Form.Control>
+                    </Form.Group>
+
                     <Form.Group controlId="formBasicCheckbox">
                         <Form.Check 
                         disabled={disabledHandler()} 

@@ -4,7 +4,7 @@ import { Modal, Button} from 'react-bootstrap';
 
 const CustomerSummary = (props) => {
 
-    const { modalIsOpen, 
+    const { modalIsOpen,   
         handleClose,
         handleSubmit,
         firstName,
@@ -14,7 +14,8 @@ const CustomerSummary = (props) => {
         city,
         state,
         zip,
-        phone
+        phone,
+        email
      } = props
      
     return (
@@ -23,13 +24,15 @@ const CustomerSummary = (props) => {
             onHide={handleClose}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Customer Information</Modal.Title>
+                <Modal.Title>Verify Customer Information</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <h6><strong>Customer Name:</strong> {firstName + ' ' + lastName}</h6>
                 {companyName &&<h6><strong>Company Name:</strong> {companyName}</h6>}
                 <h6><strong>Address:</strong> {street + ', ' + city +', ' + state + ', ' + zip}</h6>
                 <h6><strong>Phone Number:</strong> {phone}</h6>
+                <h6><strong>Email:</strong> {email}</h6>
+
                 
             </Modal.Body>
             <Modal.Footer>
