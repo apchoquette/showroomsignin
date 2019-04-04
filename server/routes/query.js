@@ -2,6 +2,37 @@ const jsforce = require('jsforce');
 const keys = require('../config/keys');
 
 module.exports = (app) => {
+
+    app.get('/api/showroom-visitor/:email', (req,res) => {
+        
+        const { email } = req.params
+        
+        const records = [];
+
+        var conn = new jsforce.Connection({ 
+            loginUrl : keys.loginURL
+          });
+            
+            //initiate connection, run async query and await records. 
+        conn.login(keys.sfUsername, keys.sfPassword+keys.sfToken, async function(err, userInfo) {
+            if (err) { 
+                res.status(408)
+                return console.error(err); 
+            }          
+            var query = await conn.query(`SELECT Id,Name, email__c, Industry__c, Company_Name__c, 
+                Street__c,City__c,State__c,zip__c,Phone_Number__c, Classification__c, NumberOfVisits__c, AddToEmailList__c,
+                Referrer__c, Referrer_Name__c FROM Showroom_Visitor__c WHERE email__c LIKE '${email}'`)
+                    .on("record", function(record) {
+                    records.push(record);
+                    })
+                if(records.length === 0){
+                    res.status(404).send('User not found.')
+                }else{
+                    res.status(200).send(records[0])
+                    
+                }
+            })
+    })
     
 
     app.post('/api/showroom-visitor', (req,res)=> {
@@ -60,15 +91,19 @@ module.exports = (app) => {
         }
         
         checkExisting(newShowroomVisitor,(newShowroomVisitor) => {
+            if(newShowroomVisitor.Name !== '' || newShowroomVisitor.Name !== 'undefined undefined'){
+                conn.sobject("Showroom_Visitor__c").create(newShowroomVisitor, function(err, ret) {
+                    if( err || !ret.success ){
+                        res.status(400).send(err)
+                        return console.error(err, ret);
+                    }
+                    
+                    res.status(200).send(ret.id);
+                    console.log("Created record id : " + ret.id);        
+                  });
+            }
             
-            conn.sobject("Showroom_Visitor__c").create(newShowroomVisitor, function(err, ret) {
-                if( err || !ret.success ){
-                    res.status(400).send(err)
-                    return console.error(err, ret);
-                }
-                res.status(200).send(ret.id);
-                console.log("Created record id : " + ret.id);        
-              });
+            
         });
 })
     app.put('/api/showroom-visitor/:sfId', (req,res) => {

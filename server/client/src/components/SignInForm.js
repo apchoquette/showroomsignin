@@ -57,6 +57,42 @@ class SignInForm extends Component {
 
     completeHandler = () => {
 
+        const successfulSubmission = () => {
+            this.setState({
+                submitted: true,
+                modalIsOpen: false
+            })
+            setTimeout(()=>
+                this.setState({
+                    status: 'new', //new or returning
+                    email: '',
+                    firstName: '',
+                    lastName: '',
+                    industry: '',
+                    companyName: '',
+                    street: '',
+                    city: '',
+                    state: '',
+                    zip: '',
+                    phone: '',
+                    classification: 'homeowner', // homeowner or professional
+                    addToEmailList: false,
+                    modalIsOpen: false,
+                    validated: false,
+                    referrer: '',
+                    referrerDetail: '',
+                    emailSubmitted: false,
+                    loading: false,
+                    editing: false,
+                    sfId: '',
+                    material: '',
+                    number: 1,
+                    submitted: false,
+                    error: false,
+                    errorText: ''
+                }),3000)
+        }
+
         let { status, sfId, editing, number } = this.state
         if(status === 'returning'){
             axios.put(`/api/showroom-visitor/${sfId}`, {
@@ -64,44 +100,14 @@ class SignInForm extends Component {
                 number: number++
             }).then((response) => {
                 if(response.status === 200) {
-                    this.setState({
-                        submitted: true,
-                        modalIsOpen: false
-                    })
-                    setTimeout(()=>
-                        this.setState({
-                            status: 'new', //new or returning
-                            email: '',
-                            firstName: '',
-                            lastName: '',
-                            industry: '',
-                            companyName: '',
-                            street: '',
-                            city: '',
-                            state: '',
-                            zip: '',
-                            phone: '',
-                            classification: 'homeowner', // homeowner or professional
-                            addToEmailList: false,
-                            modalIsOpen: false,
-                            validated: false,
-                            referrer: '',
-                            referrerDetail: '',
-                            emailSubmitted: false,
-                            loading: false,
-                            editing: false,
-                            sfId: '',
-                            material: '',
-                            number: 1,
-                            submitted: false,
-                            error: false,
-                            errorText: ''
-                        }),3000)
+                    successfulSubmission();
                 }
             }).catch((error) => {
                 this.setState({
                     error: true,
-                    errorText: 'Connection Failed. Please check internet connection and submit again.'
+                    errorText: `${error}`,
+                    loading: false,
+                    status: 'new'
                 })
             })
         }else{
@@ -110,63 +116,133 @@ class SignInForm extends Component {
               })
               .then((response) => {
                 if(response.status === 200) {
-                    this.setState({
-                        submitted: true,
-                        modalIsOpen: false
-                    
-                    })
+                    successfulSubmission();
               }})
               .catch((error) => {
                     this.setState({
                         error: true,
-                        errorText: 'Connection Failed. Please check internet connection and submit again.'
+                        errorText: `${error}`,
+                        loading: false
+                        
                     })
               });
         }
     }
 
-    confirmDataHandler = () => {
-        this.setState({loading: true,
-        emailSubmitted: true});
-        
-        axios.post('/api/showroom-visitor',{...this.state}).then(({data})=> {
-            let { Name,  
-                Industry__c, 
-                Company_Name__c, 
-                Street__c, 
-                City__c, 
-                State__c, 
-                zip__c, 
-                Phone_Number__c, 
-                Classification__c, 
-                AddToEmailList__c, 
-                Referrer__c,Referrer_Name__c, Id,NumberOfVisits__c } = data;
+    checkExistingHandler = (email) => {
 
-            this.setState({
-                firstName: Name.split(' ')[0],
-                lastName: Name.split(' ')[1],
-                industry: Industry__c ,
-                companyName: Company_Name__c,
-                street: Street__c,
-                city: City__c,
-                state: State__c,
-                zip: zip__c,
-                phone: Phone_Number__c,
-                status: 'returning',
-                classification: Classification__c,
-                addToEmailList: AddToEmailList__c,
-                referrer: Referrer__c,
-                referrerDetail: Referrer_Name__c,
-                sfId: Id,
-                number: NumberOfVisits__c
+        if(this.state.status === 'new'){
+            axios.get(`/api/showroom-visitor/${email}`)
+            .then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        status: 'returning',
+                        emailSubmitted: false
+                    })
+                }
+    
             })
-            this.setState({loading: false})
-        }).catch(err => {
+
+        }
+        
+    }
+
+    confirmDataHandler = () => {
+
+        const failedSubmission = () => {
             this.setState({
                 error: true,
-                errorText: 'Connection Failed. Please check internet connection and submit again.'
+                errorText: 'Visitor email not found.',
+                loading: false,
+                status: 'new',
+                emailSubmitted: false
             })
-        })
+            setTimeout(()=>
+                this.setState({
+                    error: false,
+                    errorText: ''
+                }),3000)
+
+        }
+        this.setState({loading: true,
+        emailSubmitted: true});
+
+        
+        if(this.state.status === 'returning'){
+            axios.get(`/api/showroom-visitor/${this.state.email}`).then(({data})=> {
+                let { Name,  
+                    Industry__c, 
+                    Company_Name__c, 
+                    Street__c, 
+                    City__c, 
+                    State__c, 
+                    zip__c, 
+                    Phone_Number__c, 
+                    Classification__c, 
+                    AddToEmailList__c, 
+                    Referrer__c,Referrer_Name__c, Id,NumberOfVisits__c } = data;
+    
+                this.setState({
+                    firstName: Name.split(' ')[0],
+                    lastName: Name.split(' ')[1],
+                    industry: Industry__c ,
+                    companyName: Company_Name__c,
+                    street: Street__c,
+                    city: City__c,
+                    state: State__c,
+                    zip: zip__c,
+                    phone: Phone_Number__c,
+                    status: 'returning',
+                    classification: Classification__c,
+                    addToEmailList: AddToEmailList__c,
+                    referrer: Referrer__c,
+                    referrerDetail: Referrer_Name__c,
+                    sfId: Id,
+                    number: NumberOfVisits__c
+                })
+                this.setState({loading: false})
+            })
+
+        }else{
+
+        
+        
+            axios.post('/api/showroom-visitor',{...this.state}).then(({data})=> {
+                let { Name,  
+                    Industry__c, 
+                    Company_Name__c, 
+                    Street__c, 
+                    City__c, 
+                    State__c, 
+                    zip__c, 
+                    Phone_Number__c, 
+                    Classification__c, 
+                    AddToEmailList__c, 
+                    Referrer__c,Referrer_Name__c, Id,NumberOfVisits__c } = data;
+
+                this.setState({
+                    firstName: Name.split(' ')[0],
+                    lastName: Name.split(' ')[1],
+                    industry: Industry__c ,
+                    companyName: Company_Name__c,
+                    street: Street__c,
+                    city: City__c,
+                    state: State__c,
+                    zip: zip__c,
+                    phone: Phone_Number__c,
+                    status: 'returning',
+                    classification: Classification__c,
+                    addToEmailList: AddToEmailList__c,
+                    referrer: Referrer__c,
+                    referrerDetail: Referrer_Name__c,
+                    sfId: Id,
+                    number: NumberOfVisits__c
+                })
+                this.setState({loading: false})
+            }).catch(err => {
+                failedSubmission()
+            })
+        }
         
     }
 
@@ -176,8 +252,8 @@ class SignInForm extends Component {
     }
 
     disabledHandler = () => {
-        let { status,editing } = this.state
-        if(status === 'new' || editing === true){
+        let { status,editing, emailSubmitted } = this.state
+        if(status === 'new' || emailSubmitted === false || editing === true){
             return false
         }
 
@@ -188,11 +264,6 @@ class SignInForm extends Component {
         this.setState({editing: true})
     }
 
-    resetForm = () => {
-
-        
-    }
-
     
 
 
@@ -201,7 +272,7 @@ class SignInForm extends Component {
         
 
         const { firstName, referrer, referrerDetail, material, lastName, companyName, email, street, city, zip, addToEmailList, status, classification, modalIsOpen,validated,state,industry, emailSubmitted, loading, phone, editing, submitted, errorText, error } = this.state;
-        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler, editHandler, resetForm } = this
+        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler, editHandler, resetForm, checkExistingHandler } = this
 
     
         let containerStyle = {
@@ -260,7 +331,10 @@ class SignInForm extends Component {
                         <Form.Control 
                         required 
                         type="email" 
-                        onChange={(e)=>this.setState({email: e.target.value})} 
+                        onChange={(e)=>this.setState({email: e.target.value})}
+                        onBlur={()=>checkExistingHandler(email)}
+                        disabled={disabledHandler()} 
+                        on 
                         value={email} 
                         placeholder="Email Address" />
                         <Form.Control.Feedback type="invalid">
@@ -445,6 +519,7 @@ class SignInForm extends Component {
                         />
                     </Form.Group>
                     </>}
+                    {(status === 'new' || (emailSubmitted === true && loading === false)) && <Button variant="success" size="lg" onClick={()=>window.print()}>Print Info</Button>}
                     {(emailSubmitted === true && loading === false && editing === false)  && <Button variant="secondary" size="lg" onClick={()=>editHandler()}>
                         Edit
                     </Button>}

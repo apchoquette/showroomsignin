@@ -36,9 +36,6 @@ const CustomerSummary = (props) => {
                 
             </Modal.Body>
             <Modal.Footer>
-            <Button variant="success" onClick={() => window.print()}>
-              Print Info
-            </Button>
             <Button variant="primary" onClick={handleSubmit}>
               Finish Sign-In!
             </Button>
