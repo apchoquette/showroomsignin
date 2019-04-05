@@ -1,12 +1,12 @@
 const jsforce = require('jsforce');
 const keys = require('../config/keys');
-const redirectIfNecessary = require('../middleware/redirect');
+
 
 module.exports = (app) => {
 
     let URL = process.env.NODE_ENV === 'production' ? `${process.env.PUBLIC_URL}` : ''
 
-    app.get(`${URL}/api/showroom-visitor/:email`, redirectIfNecessary, (req,res) => {
+    app.get(`${URL}/api/showroom-visitor/:email`, (req,res) => {
         
         const { email } = req.params
         
@@ -38,7 +38,7 @@ module.exports = (app) => {
     })
     
 
-    app.post(`${URL}/api/showroom-visitor`, redirectIfNecessary, (req,res)=> {
+    app.post(`${URL}/api/showroom-visitor`, (req,res)=> {
 
         let { firstName,email,lastName,industry,companyName,street,city,state,zip,phone,classification,addToEmailList,referrer, referrerDetail, material } = req.body
         //create an object that maps form values to 'Showroom Visitor' custom object in Salesforce.
@@ -109,7 +109,7 @@ module.exports = (app) => {
             
         });
 })
-    app.put(`${URL}/api/showroom-visitor/:sfId`, redirectIfNecessary, (req,res) => {
+    app.put(`${URL}/api/showroom-visitor/:sfId`, (req,res) => {
 
         const { sfId } = req.params
 
