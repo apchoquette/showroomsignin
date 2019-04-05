@@ -288,7 +288,8 @@ class SignInForm extends Component {
 
     
         let containerStyle = {
-            width: '40%',
+            width: '50%',
+            minWidth: '325px',
             height: '50%',
             border: '1px solid gray',
             borderRadius: '5px',
@@ -307,6 +308,7 @@ class SignInForm extends Component {
                 <Success show={submitted} />
                 <Failure show={error} errorText={errorText} />
                 <Form noValidate
+                    autoComplete="off"
                     validated={validated}
                     onSubmit={(e)=>submitHandler(e)}
                     >
