@@ -300,7 +300,7 @@ class SignInForm extends Component {
 
         let stateArray = [ 'AL', 'AK', 'AS', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FM', 'FL', 'GA', 'GU', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MH', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'MP', 'OH', 'OK', 'OR', 'PW', 'PA', 'PR', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VI', 'VA', 'WA', 'WV', 'WI', 'WY' ];
         let industryArray = [ "Interior Design", "Architecture", "Fabrication", "Retail", "Construction", "Wholesale"];
-        let referralArray = [ "E-mail", "Print Ad", "AKDO Website", "Instagram", "Facebook", "Recommended by My Fabricator/Tile Showroom", "Already an AKDO Customer", "AKDO Outdoor Signage", "Other" ]
+        let referralArray = [ "E-mail", "Print Ad", "AKDO Website", "Instagram", "Facebook", "AKDO Mailer", "Recommended by My Fabricator/Tile Showroom", "Already an AKDO Customer", "AKDO Outdoor Signage", "Other" ]
         //let materialArray = [ "Stone Tile", "Stone Mosaic", "Glass Tile", "Glass Mosaic", "Porcelain", "Ceramic", "Slab: Quartz", "Slab: Granite", "Slab: Porcelain", "Slab: Quartzite", "Slab: Limestone", "Slab: Marble"]
 
         return(
