@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently --kill-others-on-fail \"npm run dev-server\" \"npm run dev-frontend\"",
     "dev-frontend": "cd server && cd client && npm run start",
-    "dev-server": "cd server && npm run server"
+    "dev-server": "cd server && npm run server",
+    "heroku-postbuild": "cd server && npm install && cd client && npm install && npm run build"
   },
   "author": "a. choquette",
   "license": "ISC",
