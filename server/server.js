@@ -17,12 +17,16 @@ if (process.env.NODE_ENV === 'production') {
 
   const path = require('path');
 
-  app.get('*', (req,res) => {
-      res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-  })
-}
 
-console.log(process.env.PUBLIC_URL)
+  app.use(express.static(path.join(__dirname, 'build')));
+
+  app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  });
+
+};
+
+
 
 app.listen(PORT, function(){
     console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
