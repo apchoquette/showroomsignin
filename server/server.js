@@ -22,6 +22,8 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
+console.log(process.env.PUBLIC_URL)
+
 app.listen(PORT, function(){
     console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
   });
