@@ -8,6 +8,7 @@
     "dev": "concurrently --kill-others-on-fail \"npm run dev-server\" \"npm run dev-frontend\"",
     "dev-frontend": "cd server && cd client && npm run start",
     "dev-server": "cd server && npm run server",
+    "start": "cd server && node server.js",
     "heroku-postbuild": "cd server && npm install && cd client && npm install && npm run build"
   },
   "author": "a. choquette",
