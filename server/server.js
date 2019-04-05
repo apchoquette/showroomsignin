@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const PORT = 3100
+const PORT = process.env.PORT || 3100
 
 if (process.env.NODE_ENV === 'production') {
   //express will serve up production assets
