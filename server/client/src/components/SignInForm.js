@@ -95,7 +95,7 @@ class SignInForm extends Component {
 
         let { status, sfId, editing, number } = this.state
         if(status === 'returning'){
-            axios.put(`/api/showroom-visitor/${sfId}`, {
+            axios.put(`${process.env.PUBLIC_URL}/api/showroom-visitor/${sfId}`, {
                 ...this.state,
                 number: number++
             }).then((response) => {
@@ -111,7 +111,7 @@ class SignInForm extends Component {
                 })
             })
         }else{
-            axios.post('/api/showroom-visitor', {
+            axios.post(`${process.env.PUBLIC_URL}/api/showroom-visitor`, {
                 ...this.state
               })
               .then((response) => {
@@ -132,7 +132,7 @@ class SignInForm extends Component {
     checkExistingHandler = (email) => {
 
         if(this.state.status === 'new'){
-            axios.get(`/api/showroom-visitor/${email}`)
+            axios.get(`${process.env.PUBLIC_URL}/api/showroom-visitor/${email}`)
             .then((response) => {
                 if(response.status === 200) {
                     this.setState({
@@ -169,7 +169,7 @@ class SignInForm extends Component {
 
         
         if(this.state.status === 'returning'){
-            axios.get(`/api/showroom-visitor/${this.state.email}`).then(({data})=> {
+            axios.get(`${process.env.PUBLIC_URL}/api/showroom-visitor/${this.state.email}`).then(({data})=> {
                 let { Name,  
                     Industry__c, 
                     Company_Name__c, 
@@ -219,7 +219,7 @@ class SignInForm extends Component {
 
         
         
-            axios.post('/api/showroom-visitor',{...this.state}).then(({data})=> {
+            axios.post(`${process.env.PUBLIC_URL}/api/showroom-visitor`,{...this.state}).then(({data})=> {
                 let { Name,  
                     Industry__c, 
                     Company_Name__c, 
