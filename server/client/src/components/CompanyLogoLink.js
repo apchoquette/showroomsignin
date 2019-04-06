@@ -5,6 +5,6 @@ export default () => {
         margin: '10px'
     }
     return (
-        <img style = {imgStyle} alt="A  K  D  O" src="https://akdo.com/wp-content/uploads/2018/03/logo.png" />
+        <img style = {imgStyle} alt="A  K  D  O" src="https://s3.us-east-2.amazonaws.com/akdosignin/logos/logo.png" />
     )
 }
