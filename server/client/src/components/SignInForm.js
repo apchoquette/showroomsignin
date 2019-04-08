@@ -258,6 +258,25 @@ class SignInForm extends Component {
         
     }
 
+    onPhoneChange = (text) => {
+        var cleaned = ('' + text).replace(/\D/g, '')
+        var match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/)
+        if (match) {
+            var intlCode = (match[1] ? '+1 ' : ''),
+                number = [intlCode, '(', match[2], ') ', match[3], '-', match[4]].join('');
+    
+            this.setState({
+                phone: number
+            });
+    
+            return;
+        }
+    
+        this.setState({
+            phone: text
+        });
+    }
+
     closeModal = () => {
         this.setState({modalIsOpen: false})
        
@@ -284,7 +303,7 @@ class SignInForm extends Component {
         
 
         const { firstName, referrer, referrerDetail, material, lastName, companyName, email, street, city, zip, addToEmailList, status, classification, modalIsOpen,validated,state,industry, emailSubmitted, loading, phone, editing, submitted, errorText, error } = this.state;
-        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler, editHandler, resetForm, checkExistingHandler } = this
+        const { submitHandler, closeModal, completeHandler,disabledHandler, confirmDataHandler, editHandler, resetForm, checkExistingHandler, onPhoneChange } = this
 
     
         let containerStyle = {
@@ -387,7 +406,7 @@ class SignInForm extends Component {
                     <Form.Group controlId="formBasicPhoneNumber" >
                         <Form.Control 
                         disabled={disabledHandler()} 
-                        onChange={(e)=>this.setState({phone: e.target.value})} 
+                        onChange={(e)=>onPhoneChange(e.target.value)} 
                         value={phone} 
                         type="text" 
                         placeholder="Phone Number (Optional)" />
