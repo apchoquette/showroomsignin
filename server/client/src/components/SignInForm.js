@@ -547,7 +547,7 @@ class SignInForm extends Component {
                         disabled={disabledHandler()} 
                         type="checkbox" 
                         checked={addToEmailList}
-                        label="Join the AKDO Insider Email List" 
+                        label="Receive information on closeout items and future sales" 
                         onChange={(e)=>this.setState({addToEmailList: addToEmailList ? false : true})}
                         />
                     </Form.Group>
